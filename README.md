@@ -16,8 +16,8 @@ Language: Kotlin
 
 Project Structure & Assignments
 - com.example.smartscholr.auth (Nkoka): Login, Registration, & User Profiles
-- com.example.smartscholr.expenses: Expense Entry, Categories, & Budgeting
-- com.example.smartscholr.reports: Charts, Data Filtering, & Photo/Receipts
+- com.example.smartscholr.expenses (Nduh): Expense Entry, Categories, & Budgeting
+- com.example.smartscholr.reports (Mhlengi): Charts, Data Filtering, & Photo/Receipts
 - com.example.smartscholr.data (Sifiso): Shared Room Database & Entities
 
 Git Workflow (Important!)
