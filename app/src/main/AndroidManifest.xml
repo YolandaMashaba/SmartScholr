@@ -12,6 +12,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartScholr">
         <activity
+            android:name=".Module1Activity"
+            android:exported="false" />
+        <activity
+            android:name=".Module2Activity"
+            android:exported="false" />
+        <activity
+            android:name=".Module3Activity"
+            android:exported="false" />
+        <activity
+            android:name=".Module4Activity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
