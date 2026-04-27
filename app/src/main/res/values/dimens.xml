@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash-aligned outer gutter -->
+    <dimen name="auth_screen_horizontal_padding">24dp</dimen>
+    <!-- Inner card horizontal inset (matches splash primary button side margin intent) -->
+    <dimen name="auth_card_inner_horizontal_padding">40dp</dimen>
+    <dimen name="auth_card_corner_radius">24dp</dimen>
+    <dimen name="auth_card_elevation">10dp</dimen>
+    <dimen name="auth_primary_button_height">56dp</dimen>
+    <dimen name="auth_primary_button_corner_radius">32dp</dimen>
+    <dimen name="auth_header_vertical_padding_top">28dp</dimen>
+    <dimen name="auth_header_vertical_padding_bottom">24dp</dimen>
+    <dimen name="auth_body_padding_vertical">28dp</dimen>
+    <dimen name="auth_field_vertical_spacing">18dp</dimen>
+</resources>

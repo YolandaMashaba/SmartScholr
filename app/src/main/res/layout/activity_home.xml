@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/homeRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/auth_screen_background"
+    android:fillViewport="true"
+    tools:context=".HomeActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/auth_card_inner_horizontal_padding">
+
+        <TextView
+            android:id="@+id/textWelcome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="sans-serif-black"
+            android:textAppearance="?attr/textAppearanceHeadlineMedium"
+            android:textColor="@color/on_surface"
+            tools:text="Hi, Alex" />
+
+        <TextView
+            android:id="@+id/textHomeSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/home_subtitle"
+            android:textColor="@color/auth_label"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/textGoalsSummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:lineSpacingExtra="4dp"
+            android:textColor="@color/on_surface"
+            android:textSize="15sp"
+            tools:text="Minimum spend &amp; savings goals saved." />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonLogout"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="@string/action_logout"
+            android:textColor="@color/auth_teal_link"
+            app:strokeColor="@color/auth_teal_link" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
