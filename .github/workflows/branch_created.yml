@@ -1,0 +1,33 @@
+name: Branch CI Check
+
+on:
+  # Triggers for the moment a branch is first created
+  create:
+  
+  # Triggers every time code is pushed to ANY branch
+  push:
+    branches:
+      - '**'  
+
+jobs:
+  build-and-test:
+
+    if: github.event_ref_type != 'tag' 
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build Debug APK
+        # This checks if the code actually compiles
+        run: ./gradlew assembleDebug
