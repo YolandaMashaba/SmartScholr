@@ -2,23 +2,29 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="primary">#1E5AA8</color>
-    <color name="on_primary">#FFFFFFFF</color>
-    <color name="primary_container">#D4E2FF</color>
-    <color name="surface">#F7F7F9</color>
-    <color name="on_surface">#1C1B1F</color>
-    <!-- Splash / brand -->
-    <color name="splash_gradient_top">#1D4D46</color>
-    <color name="splash_gradient_bottom">#0F302B</color>
-    <color name="terracotta">#D36B3D</color>
-    <color name="splash_circle_faint">#1AFFFFFF</color>
-    <!-- Auth screens -->
-    <color name="auth_screen_background">#EEEEF2</color>
-    <color name="auth_card_white">#FFFFFFFF</color>
-    <color name="auth_label">#6E6E6E</color>
-    <color name="auth_hint_placeholder">#B0B0B0</color>
-    <color name="auth_icon_grey">#8E8E8E</color>
-    <color name="auth_outline_field">#CDCDCD</color>
-    <color name="auth_divider_line">#D8D8D8</color>
-    <color name="auth_teal_link">#1D4D46</color>
+    <color name="teal_header_start">#083A3A</color>
+    <color name="teal_header_end">#147070</color>
+    <color name="teal_dark">#0D4F4F</color>
+    <color name="orange_accent">#FF8A4C</color>
+    <color name="card_background">#F4F4F8</color>
+    <color name="card_inner">#FAFAFC</color>
+    <color name="text_secondary">#757575</color>
+    <color name="income_green">#2E7D32</color>
+    <color name="expense_red">#C62828</color>
+    <color name="chip_unselected">#40FFFFFF</color>
+    <color name="track_bar">#E8E0D6</color>
+    <color name="section_label">#0D4F4F</color>
+    <color name="badge_blue">#1976D2</color>
+    <color name="orange_soft">#FFF3E8</color>
+    <color name="outline_soft">#B0C4C4</color>
+    <color name="text_on_teal_muted">#CCFFFFFF</color>
+    <!-- Auth screens (match design reference) -->
+    <color name="auth_teal">#004D40</color>
+    <color name="auth_orange">#E65100</color>
+    <color name="auth_screen_bg">#F2F3F5</color>
+    <color name="auth_divider">#D0D0D0</color>
+    <color name="auth_text_muted">#8A8A8A</color>
+    <color name="auth_splash_bottom">#00695C</color>
+    <!-- Splash title accent (matches design orange on brand word) -->
+    <color name="splash_accent_orange">#E65C2E</color>
 </resources>
