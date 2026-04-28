@@ -5,15 +5,12 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "users",
-    indices = [Index(value = ["username"], unique = true)]
+    tableName = "categories",
+    indices = [Index(value = ["userId", "name"], unique = true)]
 )
-data class User(
+data class CategoryEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val username: String,
-    val passwordSaltB64: String,
-    val passwordHashB64: String,
-    val displayName: String,
-    val email: String?,
+    val userId: Long,
+    val name: String,
     val createdAtMillis: Long = System.currentTimeMillis()
 )
