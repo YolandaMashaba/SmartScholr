@@ -1,0 +1,36 @@
+package com.example.smartscholr
+
+import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.room.Room
+import com.example.smartscholr.data.AppDatabase
+import com.example.smartscholr.data.AuthRepository
+import com.example.smartscholr.data.LedgerRepository
+import com.example.smartscholr.session.SessionStore
+
+class SmartScholrApplication : Application() {
+
+    lateinit var database: AppDatabase
+        private set
+    lateinit var sessionStore: SessionStore
+        private set
+    lateinit var authRepository: AuthRepository
+        private set
+    lateinit var ledgerRepository: LedgerRepository
+        private set
+
+    override fun onCreate() {
+        super.onCreate()
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        sessionStore = SessionStore(this)
+        database = Room.databaseBuilder(
+            this,
+            AppDatabase::class.java,
+            "smartscholr.db"
+        ).build()
+        authRepository = AuthRepository(database.userDao(), sessionStore)
+        ledgerRepository = LedgerRepository(database)
+    }
+}
+
+fun Application.scholrApp(): SmartScholrApplication = this as SmartScholrApplication
