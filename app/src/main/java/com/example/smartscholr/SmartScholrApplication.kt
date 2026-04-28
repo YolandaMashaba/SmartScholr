@@ -31,7 +31,7 @@ class SmartScholrApplication : Application() {
             AppDatabase::class.java,
             "smartscholr.db"
         )
-            .addMigrations(AppDatabase.MIGRATION_1_2)
+            .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3)
             .build()
         authRepository = AuthRepository(database.userDao(), sessionStore)
         ledgerRepository = LedgerRepository(database)
