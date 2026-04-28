@@ -7,7 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [User::class, CategoryEntity::class, LedgerEntry::class, XpEntity::class],
-    version = 2
+    version = 3
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
@@ -25,6 +25,13 @@ abstract class AppDatabase : RoomDatabase() {
                         streakDays INTEGER NOT NULL DEFAULT 0,
                         lastLogDateMillis INTEGER NOT NULL DEFAULT 0
                     )"""
+                )
+            }
+        }
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE ledger_entries ADD COLUMN photoPath TEXT"
                 )
             }
         }

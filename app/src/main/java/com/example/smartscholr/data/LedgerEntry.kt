@@ -4,9 +4,6 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-/**
- * Income or expense line. [startTimeMillis] / [endTimeMillis] are full instants; month filters use [startTimeMillis].
- */
 @Entity(
     tableName = "ledger_entries",
     indices = [
@@ -22,9 +19,9 @@ data class LedgerEntry(
     val amount: Double,
     val isExpense: Boolean,
     val description: String,
-    /** Start of calendar day (local) for quick filters; mirrors date part of [startTimeMillis]. */
     val dateMillis: Long,
     val startTimeMillis: Long,
     val endTimeMillis: Long?,
+    val photoPath: String? = null,
     val createdAtMillis: Long = System.currentTimeMillis()
 )

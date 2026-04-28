@@ -59,6 +59,19 @@ class LedgerRepository(
         ledgerDao.countInRange(userId, from, to)
     }
 
+    suspend fun listRecentInRange(
+        userId: Long,
+        from: Long,
+        to: Long,
+        limit: Int = 100
+    ): List<LedgerLine> = withContext(Dispatchers.IO) {
+        val entries = ledgerDao.listRecentInRange(userId, from, to, limit)
+        val catById = categoryDao.listForUser(userId).associateBy { it.id }
+        entries.map { e ->
+            LedgerLine(e, e.categoryId?.let { id -> catById[id]?.name } ?: "—")
+        }
+    }
+
     suspend fun monthSnapshot(
         userId: Long,
         year: Int,
@@ -66,16 +79,20 @@ class LedgerRepository(
         recentLimit: Int = 50
     ): MonthSnapshot = withContext(Dispatchers.IO) {
         val (from, to) = monthBoundsMillis(year, month1Based)
+        getSnapshotForRange(userId, from, to, recentLimit)
+    }
+
+    suspend fun getSnapshotForRange(
+        userId: Long,
+        from: Long,
+        to: Long,
+        limit: Int = 50
+    ): MonthSnapshot = withContext(Dispatchers.IO) {
         val income = ledgerDao.sumIncomeInRange(userId, from, to)
         val expense = ledgerDao.sumExpenseInRange(userId, from, to)
-        val recentEntries = ledgerDao.listRecentInRange(userId, from, to, recentLimit)
+        val recent = listRecentInRange(userId, from, to, limit)
+        
         val catById = categoryDao.listForUser(userId).associateBy { it.id }
-        val recent = recentEntries.map { e ->
-            LedgerLine(
-                e,
-                e.categoryId?.let { id -> catById[id]?.name } ?: "—"
-            )
-        }
         val sums = ledgerDao.sumExpensesByCategoryInRange(userId, from, to)
         val max = (sums.maxOfOrNull { it.total } ?: 0.0).coerceAtLeast(1.0)
         val categoryExpenses = sums.map { row ->
@@ -86,6 +103,7 @@ class LedgerRepository(
                 fraction = (row.total / max).toFloat().coerceIn(0f, 1f)
             )
         }.sortedByDescending { it.amount }
+
         MonthSnapshot(
             income = income,
             expense = expense,
