@@ -45,7 +45,7 @@ class RegisterActivity : AppCompatActivity() {
                     email = em
                 )
                 if (r.isSuccess) {
-                    startActivity(Intent(this@RegisterActivity, HomeActivity::class.java).apply {
+                    startActivity(Intent(this@RegisterActivity, MainActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     })
                     finish()

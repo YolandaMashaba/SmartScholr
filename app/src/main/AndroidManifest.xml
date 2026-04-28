@@ -4,6 +4,7 @@
 
     <!-- ✅ Camera Permission -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application
         android:name=".SmartScholrApplication"
@@ -47,6 +48,10 @@
             android:name=".RegisterActivity"
             android:exported="false"
             android:theme="@style/Theme.SmartScholr.Auth" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
 
         <activity
             android:name=".HomeActivity"

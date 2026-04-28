@@ -32,7 +32,7 @@ class SplashActivity : AppCompatActivity() {
             }
             if (isFinishing) return@launch
             if (userId != null) {
-                startActivity(Intent(this@SplashActivity, HomeActivity::class.java))
+                startActivity(Intent(this@SplashActivity, MainActivity::class.java))
                 finish()
             } else {
                 btn.isEnabled = true

@@ -40,7 +40,7 @@ class LoginActivity : AppCompatActivity() {
                     Result.failure(t)
                 }
                 if (r.isSuccess) {
-                    startActivity(Intent(this@LoginActivity, HomeActivity::class.java).apply {
+                    startActivity(Intent(this@LoginActivity, MainActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     })
                     finish()
