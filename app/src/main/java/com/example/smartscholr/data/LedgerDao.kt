@@ -56,6 +56,12 @@ interface LedgerDao {
         to: Long
     ): List<CategoryExpenseSum>
 
+    @Query("DELETE FROM ledger_entries WHERE id = :entryId")
+    fun deleteById(entryId: Long)
+
+    @Query("UPDATE ledger_entries SET photoPath = :path WHERE id = :entryId")
+    fun updatePhotoPath(entryId: Long, path: String?)
+
     @Query(
         """
         SELECT COUNT(*) FROM ledger_entries
