@@ -74,6 +74,17 @@
                     android:text="@string/logout"
                     android:textColor="@color/white"
                     android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/headerLevelUp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/bg_month_chip_selected"
+                    android:padding="8dp"
+                    android:text="⚡ Level Up"
+                    android:textColor="@color/teal_dark"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <HorizontalScrollView
