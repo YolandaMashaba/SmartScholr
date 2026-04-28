@@ -115,7 +115,9 @@ class HomeActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnAddCategory).setOnClickListener { showAddCategoryDialog() }
         findViewById<Button>(R.id.btnIncome).setOnClickListener { saveEntry(isExpense = false) }
         findViewById<Button>(R.id.btnExpense).setOnClickListener { saveEntry(isExpense = true) }
-
+        findViewById<TextView>(R.id.headerLevelUp).setOnClickListener {
+            startActivity(Intent(this, XpActivity::class.java))
+        }
         checkEnd.setOnCheckedChangeListener { _, checked ->
             includeEnd = checked
             rowEndTime.visibility = if (checked) View.VISIBLE else View.GONE
@@ -272,11 +274,15 @@ class HomeActivity : AppCompatActivity() {
                         try {
                             app.ledgerRepository.addCategory(userId, name)
                             loadCategoriesToSpinner {
-                                spinnerCategory.setSelection(categories.indexOfFirst { it.name == name }
-                                    .coerceAtLeast(0))
+                                spinnerCategory.setSelection(
+                                    categories.indexOfFirst { it.name == name }.coerceAtLeast(0)
+                                )
                             }
-                            Toast.makeText(this@HomeActivity, R.string.category_added, Toast.LENGTH_SHORT)
-                                .show()
+                            Toast.makeText(
+                                this@HomeActivity,
+                                R.string.category_added,
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } catch (_: SQLiteConstraintException) {
                             Toast.makeText(
                                 this@HomeActivity,
@@ -310,6 +316,7 @@ class HomeActivity : AppCompatActivity() {
         return c.timeInMillis
     }
 
+    // ── FIXED: XP award is inside saveEntry, refreshDashboard is clean ──
     private fun saveEntry(isExpense: Boolean) {
         val desc = editDescription.text?.toString()?.trim().orEmpty()
         val amount = parseAmount(editAmount.text?.toString().orEmpty())
@@ -328,11 +335,7 @@ class HomeActivity : AppCompatActivity() {
         }
         val categoryId = categories[catPos].id
         val startMs = combineDateTime(entryDate, startHour, startMinute)
-        val endMs = if (includeEnd) {
-            combineDateTime(entryDate, endHour, endMinute)
-        } else {
-            null
-        }
+        val endMs = if (includeEnd) combineDateTime(entryDate, endHour, endMinute) else null
         if (endMs != null && endMs < startMs) {
             Toast.makeText(this, R.string.error_time_order, Toast.LENGTH_SHORT).show()
             return
@@ -352,7 +355,18 @@ class HomeActivity : AppCompatActivity() {
             app.ledgerRepository.insertEntry(entry)
             editDescription.text = null
             editAmount.text = null
-            Toast.makeText(this@HomeActivity, R.string.entry_saved, Toast.LENGTH_SHORT).show()
+
+            // ── XP & Streak award ──────────────────────────
+            val award = app.xpRepository.awardTransaction(userId, isExpense)
+            val msg = buildString {
+                append(getString(R.string.entry_saved))
+                append("  +${award.xpGained} XP")
+                if (award.streakDays > 1) append(" 🔥 ${award.streakDays} day streak!")
+                if (award.leveledUp) append(" 🎉 Level up: ${award.newLevelName}!")
+            }
+            Toast.makeText(this@HomeActivity, msg, Toast.LENGTH_SHORT).show()
+            // ───────────────────────────────────────────────
+
             refreshDashboard()
         }
     }
@@ -363,6 +377,7 @@ class HomeActivity : AppCompatActivity() {
         return s.toDoubleOrNull()?.takeIf { it > 0 }
     }
 
+    // ── FIXED: refreshDashboard is clean, no XP code here ──
     private fun refreshDashboard() {
         if (userId < 0) return
         lifecycleScope.launch {
@@ -372,7 +387,11 @@ class HomeActivity : AppCompatActivity() {
                     filterYear,
                     filterMonth1
                 )
-                val count = app.ledgerRepository.countInSelectedMonth(userId, filterYear, filterMonth1)
+                val count = app.ledgerRepository.countInSelectedMonth(
+                    userId,
+                    filterYear,
+                    filterMonth1
+                )
                 if (isFinishing || isDestroyed) return@launch
                 textIncome.text = "R${numberFormat.format(snap.income)}"
                 textSpent.text = "R${numberFormat.format(snap.expense)}"

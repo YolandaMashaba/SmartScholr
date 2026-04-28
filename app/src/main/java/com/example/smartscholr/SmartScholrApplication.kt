@@ -6,6 +6,7 @@ import androidx.room.Room
 import com.example.smartscholr.data.AppDatabase
 import com.example.smartscholr.data.AuthRepository
 import com.example.smartscholr.data.LedgerRepository
+import com.example.smartscholr.data.XpRepository
 import com.example.smartscholr.session.SessionStore
 
 class SmartScholrApplication : Application() {
@@ -18,6 +19,8 @@ class SmartScholrApplication : Application() {
         private set
     lateinit var ledgerRepository: LedgerRepository
         private set
+    lateinit var xpRepository: XpRepository
+        private set
 
     override fun onCreate() {
         super.onCreate()
@@ -27,9 +30,12 @@ class SmartScholrApplication : Application() {
             this,
             AppDatabase::class.java,
             "smartscholr.db"
-        ).build()
+        )
+            .addMigrations(AppDatabase.MIGRATION_1_2)
+            .build()
         authRepository = AuthRepository(database.userDao(), sessionStore)
         ledgerRepository = LedgerRepository(database)
+        xpRepository = XpRepository(database)
     }
 }
 
