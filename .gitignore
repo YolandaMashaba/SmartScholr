@@ -1,15 +1,67 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
+# Gradle
+.gradle/
+**/build/
 /build
-/captures
-.externalNativeBuild
-.cxx
+
+# Local machine (SDK path — different on Windows vs macOS/Linux)
 local.properties
+
+# IDE – avoid duplicating machine-specific caches; keep team files in version control intentionally
+*.iml
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/*.iml
+
+# Kotlin
+.kotlin/
+
+# NDK / native
+.externalNativeBuild/
+.cxx/
+
+# Profiling / temp
+*.hprof
+*.log
+/captures
+
+# Signing (never commit secrets)
+*.jks
+*.keystore
+*.p12
+
+# Built app outputs
+*.apk
+*.ap_
+*.dex
+*.class
+# Keep AAB commented if your team deliberately stores release artifacts — most teams ignore:
+# *.aab
+
+# Android / Google
+local.properties.bak
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.stackdump
+
+# Linux
+*~
+.directory
+.Trash-*
