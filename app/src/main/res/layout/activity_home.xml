@@ -500,6 +500,13 @@
                     android:layout_height="48dp"
                     app:icon="@android:drawable/ic_menu_camera" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGallery"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    app:icon="@android:drawable/ic_menu_gallery" />
+
                 <ImageView
                     android:id="@+id/imgPreview"
                     android:layout_width="48dp"

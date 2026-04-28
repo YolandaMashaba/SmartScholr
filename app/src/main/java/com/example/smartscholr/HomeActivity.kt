@@ -91,6 +91,26 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    private val pickGallery = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                val file = File(cacheDir, "receipt_${UUID.randomUUID()}.jpg")
+                contentResolver.openInputStream(uri)?.use { input ->
+                    file.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    currentPhotoPath = file.absolutePath
+                    findViewById<ImageView>(R.id.imgPreview).apply {
+                        visibility = View.VISIBLE
+                        setImageURI(uri)
+                    }
+                }
+            }
+        }
+    }
+
     private val recentAdapter = TransactionAdapter()
     private val categoryAdapter = CategorySpendAdapter()
     private val numberFormat = NumberFormat.getNumberInstance(Locale("en", "ZA"))
@@ -141,10 +161,12 @@ class HomeActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnExpense).setOnClickListener { saveEntry(isExpense = true) }
         findViewById<Button>(R.id.btnDateFilter).setOnClickListener { showRangeDatePicker() }
         findViewById<Button>(R.id.btnCamera).setOnClickListener { launchCamera() }
+        findViewById<Button>(R.id.btnGallery).setOnClickListener { pickGallery.launch("image/*") }
         
         recentAdapter.setOnItemClickListener(object : TransactionAdapter.OnItemClickListener {
             override fun onItemClick(line: LedgerRepository.LedgerLine) {
                 val intent = Intent(this@HomeActivity, TransactionDetailsActivity::class.java).apply {
+                    putExtra("entryId", line.entry.id)
                     putExtra("description", line.entry.description)
                     putExtra("category", line.categoryName)
                     putExtra("amount", line.entry.amount)

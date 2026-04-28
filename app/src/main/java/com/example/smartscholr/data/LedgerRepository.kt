@@ -31,6 +31,14 @@ class LedgerRepository(
         ledgerDao.insert(entry)
     }
 
+    suspend fun deleteEntry(entryId: Long) = withContext(Dispatchers.IO) {
+        ledgerDao.deleteById(entryId)
+    }
+
+    suspend fun updatePhoto(entryId: Long, path: String?) = withContext(Dispatchers.IO) {
+        ledgerDao.updatePhotoPath(entryId, path)
+    }
+
     data class MonthSnapshot(
         val income: Double,
         val expense: Double,
