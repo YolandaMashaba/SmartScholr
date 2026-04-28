@@ -1,25 +1,36 @@
 package com.example.smartscholr
 
 import android.app.Application
-import android.content.Context
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.room.Room
 import com.example.smartscholr.data.AppDatabase
 import com.example.smartscholr.data.AuthRepository
+import com.example.smartscholr.data.LedgerRepository
 import com.example.smartscholr.session.SessionStore
 
 class SmartScholrApplication : Application() {
 
+    lateinit var database: AppDatabase
+        private set
+    lateinit var sessionStore: SessionStore
+        private set
     lateinit var authRepository: AuthRepository
+        private set
+    lateinit var ledgerRepository: LedgerRepository
         private set
 
     override fun onCreate() {
         super.onCreate()
-        val db = Room.databaseBuilder(this, AppDatabase::class.java, "smartscholr.db")
-            .fallbackToDestructiveMigration()
-            .build()
-        authRepository = AuthRepository(db.userDao(), SessionStore(this))
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        sessionStore = SessionStore(this)
+        database = Room.databaseBuilder(
+            this,
+            AppDatabase::class.java,
+            "smartscholr.db"
+        ).build()
+        authRepository = AuthRepository(database.userDao(), sessionStore)
+        ledgerRepository = LedgerRepository(database)
     }
 }
 
-fun Context.requireAuthRepository(): AuthRepository =
-    (applicationContext as SmartScholrApplication).authRepository
+fun Application.scholrApp(): SmartScholrApplication = this as SmartScholrApplication

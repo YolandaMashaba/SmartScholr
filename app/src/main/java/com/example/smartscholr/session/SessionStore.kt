@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-private val Context.sessionDataStore by preferencesDataStore(name = "session_preferences")
+private val Context.sessionDataStore by preferencesDataStore("session_preferences")
 
 private object SessionKeys {
     val USER_ID = longPreferencesKey("session_user_id")
@@ -25,18 +25,13 @@ class SessionStore(private val context: Context) {
 
     suspend fun setSessionUserId(id: Long?) {
         store.edit { prefs ->
-            if (id == null || id < 1L) {
-                prefs.remove(SessionKeys.USER_ID)
-            } else {
-                prefs[SessionKeys.USER_ID] = id
-            }
+            if (id == null || id < 1L) prefs.remove(SessionKeys.USER_ID)
+            else prefs[SessionKeys.USER_ID] = id
         }
     }
 
     suspend fun clearSession() {
-        store.edit { prefs ->
-            prefs.remove(SessionKeys.USER_ID)
-        }
+        store.edit { prefs -> prefs.remove(SessionKeys.USER_ID) }
     }
 
     suspend fun currentUserIdOrNull(): Long? {
