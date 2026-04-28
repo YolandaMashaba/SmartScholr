@@ -11,12 +11,14 @@
     android:paddingEnd="12dp"
     android:paddingBottom="10dp">
 
+    <!-- Dot -->
     <View
         android:layout_width="10dp"
         android:layout_height="10dp"
         android:layout_marginEnd="12dp"
         android:background="@drawable/bg_dot_teal" />
 
+    <!-- Text section -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -39,6 +41,17 @@
             android:textSize="12sp" />
     </LinearLayout>
 
+    <!-- 📸 Receipt Image (NEW) -->
+    <ImageView
+        android:id="@+id/imageReceipt"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        android:background="@drawable/bg_image_rounded" />
+
+    <!-- Amount -->
     <TextView
         android:id="@+id/textAmount"
         android:layout_width="wrap_content"

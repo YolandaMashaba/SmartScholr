@@ -286,6 +286,15 @@
                         android:textColor="@color/white"
                         android:textSize="12sp"
                         tools:text="4 this month" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDateFilter"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="📅 Filter"
+                        android:textSize="12sp" />
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -483,6 +492,22 @@
                     android:textColor="@color/teal_dark"
                     android:textSize="15sp"
                     tools:text="14:30" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCamera"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    app:icon="@android:drawable/ic_menu_camera" />
+
+                <ImageView
+                    android:id="@+id/imgPreview"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_image_rounded"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <CheckBox
