@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- ✅ Camera Permission -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:name=".SmartScholrApplication"
         android:allowBackup="true"
@@ -13,6 +16,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartScholr"
         tools:targetApi="35">
+
+        <!-- ✅ FileProvider (REQUIRED for camera image saving) -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -22,16 +37,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".LoginActivity"
             android:exported="false"
             android:theme="@style/Theme.SmartScholr.Auth" />
+
         <activity
             android:name=".RegisterActivity"
             android:exported="false"
             android:theme="@style/Theme.SmartScholr.Auth" />
+
         <activity
             android:name=".HomeActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".XpActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".TransactionDetailsActivity"
+            android:exported="false" />
+
     </application>
 </manifest>

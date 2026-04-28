@@ -4,7 +4,9 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.database.sqlite.SQLiteConstraintException
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.Gravity
 import android.view.View
 import android.widget.AdapterView
@@ -12,13 +14,16 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,13 +32,17 @@ import com.example.smartscholr.data.LedgerEntry
 import com.example.smartscholr.data.LedgerRepository
 import com.example.smartscholr.ui.CategorySpendAdapter
 import com.example.smartscholr.ui.TransactionAdapter
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.text.NumberFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 class HomeActivity : AppCompatActivity() {
 
@@ -66,6 +75,21 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var editAmount: TextInputEditText
     private lateinit var spinnerCategory: Spinner
     private lateinit var headerLogout: TextView
+
+    private var currentPhotoPath: String? = null
+    private var capturedPhotoUri: Uri? = null
+
+    private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            findViewById<ImageView>(R.id.imgPreview).apply {
+                visibility = View.VISIBLE
+                setImageURI(capturedPhotoUri)
+            }
+        } else {
+            currentPhotoPath = null
+            capturedPhotoUri = null
+        }
+    }
 
     private val recentAdapter = TransactionAdapter()
     private val categoryAdapter = CategorySpendAdapter()
@@ -115,7 +139,26 @@ class HomeActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnAddCategory).setOnClickListener { showAddCategoryDialog() }
         findViewById<Button>(R.id.btnIncome).setOnClickListener { saveEntry(isExpense = false) }
         findViewById<Button>(R.id.btnExpense).setOnClickListener { saveEntry(isExpense = true) }
+        findViewById<Button>(R.id.btnDateFilter).setOnClickListener { showRangeDatePicker() }
+        findViewById<Button>(R.id.btnCamera).setOnClickListener { launchCamera() }
+        
+        recentAdapter.setOnItemClickListener(object : TransactionAdapter.OnItemClickListener {
+            override fun onItemClick(line: LedgerRepository.LedgerLine) {
+                val intent = Intent(this@HomeActivity, TransactionDetailsActivity::class.java).apply {
+                    putExtra("description", line.entry.description)
+                    putExtra("category", line.categoryName)
+                    putExtra("amount", line.entry.amount)
+                    putExtra("isExpense", line.entry.isExpense)
+                    putExtra("date", line.entry.startTimeMillis)
+                    putExtra("photoPath", line.entry.photoPath)
+                }
+                startActivity(intent)
+            }
+        })
 
+        findViewById<TextView>(R.id.headerLevelUp).setOnClickListener {
+            startActivity(Intent(this, XpActivity::class.java))
+        }
         checkEnd.setOnCheckedChangeListener { _, checked ->
             includeEnd = checked
             rowEndTime.visibility = if (checked) View.VISIBLE else View.GONE
@@ -258,6 +301,28 @@ class HomeActivity : AppCompatActivity() {
         textEnd.text = String.format(Locale.getDefault(), "%02d:%02d", endHour, endMinute)
     }
 
+    private fun launchCamera() {
+        val photoFile = File(cacheDir, "receipt_${UUID.randomUUID()}.jpg")
+        currentPhotoPath = photoFile.absolutePath
+        capturedPhotoUri = FileProvider.getUriForFile(this, "${packageName}.provider", photoFile)
+        takePicture.launch(capturedPhotoUri)
+    }
+
+    private fun showRangeDatePicker() {
+        val picker = MaterialDatePicker.Builder.dateRangePicker()
+            .setTitleText("Select Date Range")
+            .build()
+        picker.addOnPositiveButtonClickListener { range ->
+            val start = range.first
+            val end = range.second + 86400000L // inclusive
+            lifecycleScope.launch {
+                val snap = app.ledgerRepository.getSnapshotForRange(userId, start, end)
+                updateUiWithSnapshot(snap, "Custom Range")
+            }
+        }
+        picker.show(supportFragmentManager, "range_picker")
+    }
+
     private fun showAddCategoryDialog() {
         val input = EditText(this)
         input.hint = getString(R.string.category_name_hint)
@@ -272,11 +337,15 @@ class HomeActivity : AppCompatActivity() {
                         try {
                             app.ledgerRepository.addCategory(userId, name)
                             loadCategoriesToSpinner {
-                                spinnerCategory.setSelection(categories.indexOfFirst { it.name == name }
-                                    .coerceAtLeast(0))
+                                spinnerCategory.setSelection(
+                                    categories.indexOfFirst { it.name == name }.coerceAtLeast(0)
+                                )
                             }
-                            Toast.makeText(this@HomeActivity, R.string.category_added, Toast.LENGTH_SHORT)
-                                .show()
+                            Toast.makeText(
+                                this@HomeActivity,
+                                R.string.category_added,
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } catch (_: SQLiteConstraintException) {
                             Toast.makeText(
                                 this@HomeActivity,
@@ -310,6 +379,7 @@ class HomeActivity : AppCompatActivity() {
         return c.timeInMillis
     }
 
+    // ── FIXED: XP award is inside saveEntry, refreshDashboard is clean ──
     private fun saveEntry(isExpense: Boolean) {
         val desc = editDescription.text?.toString()?.trim().orEmpty()
         val amount = parseAmount(editAmount.text?.toString().orEmpty())
@@ -328,11 +398,7 @@ class HomeActivity : AppCompatActivity() {
         }
         val categoryId = categories[catPos].id
         val startMs = combineDateTime(entryDate, startHour, startMinute)
-        val endMs = if (includeEnd) {
-            combineDateTime(entryDate, endHour, endMinute)
-        } else {
-            null
-        }
+        val endMs = if (includeEnd) combineDateTime(entryDate, endHour, endMinute) else null
         if (endMs != null && endMs < startMs) {
             Toast.makeText(this, R.string.error_time_order, Toast.LENGTH_SHORT).show()
             return
@@ -346,13 +412,27 @@ class HomeActivity : AppCompatActivity() {
             description = desc,
             dateMillis = dayMs,
             startTimeMillis = startMs,
-            endTimeMillis = endMs
+            endTimeMillis = endMs,
+            photoPath = currentPhotoPath
         )
         lifecycleScope.launch {
             app.ledgerRepository.insertEntry(entry)
             editDescription.text = null
             editAmount.text = null
-            Toast.makeText(this@HomeActivity, R.string.entry_saved, Toast.LENGTH_SHORT).show()
+            currentPhotoPath = null
+            findViewById<ImageView>(R.id.imgPreview).visibility = View.GONE
+
+            // ── XP & Streak award ──────────────────────────
+            val award = app.xpRepository.awardTransaction(userId, isExpense)
+            val msg = buildString {
+                append(getString(R.string.entry_saved))
+                append("  +${award.xpGained} XP")
+                if (award.streakDays > 1) append(" 🔥 ${award.streakDays} day streak!")
+                if (award.leveledUp) append(" 🎉 Level up: ${award.newLevelName}!")
+            }
+            Toast.makeText(this@HomeActivity, msg, Toast.LENGTH_SHORT).show()
+            // ───────────────────────────────────────────────
+
             refreshDashboard()
         }
     }
@@ -363,6 +443,7 @@ class HomeActivity : AppCompatActivity() {
         return s.toDoubleOrNull()?.takeIf { it > 0 }
     }
 
+    // ── FIXED: refreshDashboard is clean, no XP code here ──
     private fun refreshDashboard() {
         if (userId < 0) return
         lifecycleScope.launch {
@@ -372,18 +453,26 @@ class HomeActivity : AppCompatActivity() {
                     filterYear,
                     filterMonth1
                 )
-                val count = app.ledgerRepository.countInSelectedMonth(userId, filterYear, filterMonth1)
+                val count = app.ledgerRepository.countInSelectedMonth(
+                    userId,
+                    filterYear,
+                    filterMonth1
+                )
                 if (isFinishing || isDestroyed) return@launch
-                textIncome.text = "R${numberFormat.format(snap.income)}"
-                textSpent.text = "R${numberFormat.format(snap.expense)}"
-                textBalance.text = "R${numberFormat.format(snap.balance)}"
-                textRecentBadge.text = getString(R.string.recent_badge, count)
-                recentAdapter.submit(snap.recent)
-                categoryAdapter.submit(snap.categoryExpenses)
+                updateUiWithSnapshot(snap, getString(R.string.recent_badge, count))
             } catch (t: Throwable) {
                 android.util.Log.e("HomeActivity", "refreshDashboard", t)
             }
         }
+    }
+
+    private fun updateUiWithSnapshot(snap: LedgerRepository.MonthSnapshot, badgeText: String) {
+        textIncome.text = "R${numberFormat.format(snap.income)}"
+        textSpent.text = "R${numberFormat.format(snap.expense)}"
+        textBalance.text = "R${numberFormat.format(snap.balance)}"
+        textRecentBadge.text = badgeText
+        recentAdapter.submit(snap.recent)
+        categoryAdapter.submit(snap.categoryExpenses)
     }
 
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
