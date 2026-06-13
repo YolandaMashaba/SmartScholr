@@ -101,6 +101,70 @@ class XpRepository(private val db: AppDatabase) {
         return c.timeInMillis
     }
 
+
+    data class Badge(
+        val id: String,
+        val name: String,
+        val description: String,
+        val icon: String,
+        val isEarned: Boolean = false
+    )
+
+    suspend fun getBadges(userId: Long): List<Badge> = withContext(Dispatchers.IO) {
+        val xp = getOrCreate(userId)
+        val entriesCount = db.ledgerDao().countAllForUser(userId)
+        
+        // In a real app, we might store earned badges in DB, 
+        // but for this task we'll derive some from existing data.
+        
+        val badges = mutableListOf<Badge>()
+        
+        // 1. Budget King - Stay under budget (represented by having positive balance in latest month)
+        // We can check if they have at least one transaction and positive balance
+        val cal = Calendar.getInstance()
+        val snap = db.ledgerDao().sumIncomeInRange(userId, 0, Long.MAX_VALUE) - 
+                   db.ledgerDao().sumExpenseInRange(userId, 0, Long.MAX_VALUE)
+        
+        badges.add(Badge(
+            id = "budget_king",
+            name = "Budget King",
+            description = "Keep a positive total balance",
+            icon = "👑",
+            isEarned = snap > 0
+        ))
+        
+        // 2. Consistent Logger - Logged at least 10 entries
+        badges.add(Badge(
+            id = "consistent_logger",
+            name = "Consistent Logger",
+            description = "Log at least 10 entries",
+            icon = "📝",
+            isEarned = entriesCount >= 10
+        ))
+        
+        // 3. Streak Starter - 3 day streak
+        badges.add(Badge(
+            id = "streak_starter",
+            name = "Streak Starter",
+            description = "Maintain a 3-day streak",
+            icon = "🔥",
+            isEarned = xp.streakDays >= 3
+        ))
+        
+        // 4. Savings Master - Level 3+
+        val level = levelFor(xp.totalXp)
+        val levelIdx = LEVELS.indexOfFirst { it.first == level.first }
+        badges.add(Badge(
+            id = "savings_master",
+            name = "Savings Master",
+            description = "Reach Level 3 (Coin Keeper)",
+            icon = "💰",
+            isEarned = levelIdx >= 2
+        ))
+
+        badges
+    }
+
     data class AwardResult(
         val xpGained: Int,
         val totalXp: Int,

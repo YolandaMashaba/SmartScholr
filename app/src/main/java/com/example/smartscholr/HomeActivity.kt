@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.smartscholr.data.CategoryEntity
 import com.example.smartscholr.data.LedgerEntry
 import com.example.smartscholr.data.LedgerRepository
+import com.example.smartscholr.data.XpRepository
 import com.example.smartscholr.ui.CategorySpendAdapter
 import com.example.smartscholr.ui.TransactionAdapter
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -495,6 +496,13 @@ class HomeActivity : AppCompatActivity() {
         textRecentBadge.text = badgeText
         recentAdapter.submit(snap.recent)
         categoryAdapter.submit(snap.categoryExpenses)
+
+        // Show level in header
+        lifecycleScope.launch {
+            val xp = app.xpRepository.getOrCreate(userId)
+            val level = XpRepository.levelFor(xp.totalXp)
+            findViewById<TextView>(R.id.headerLevelUp).text = "${level.third} ${level.first} • Level Up"
+        }
     }
 
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
