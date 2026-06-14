@@ -16,6 +16,10 @@ local.properties
 .idea/assetWizardSettings.xml
 .idea/*.iml
 
+.idea/
+*.iml
+local.propertie
+
 # Kotlin
 .kotlin/
 
