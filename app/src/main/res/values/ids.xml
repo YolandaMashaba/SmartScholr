@@ -2,4 +2,5 @@
 <resources>
     <item name="reportingChart" type="id">reportingChart</item>
     <item name="chartWebView" type="id">chartWebView</item>
+    <item name="lineChart" type="id">lineChart</item>
 </resources>

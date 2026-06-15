@@ -33,7 +33,7 @@ interface LedgerDao {
         WHERE userId = :userId AND startTimeMillis >= :from AND startTimeMillis < :to AND isExpense = 0
         """
     )
-    fun sumIncomeInRange(userId: Long, from: Long, to: Long): Double
+    fun sumIncomeInRange(userId: Long, from: Long, to: Long): Flow<Double>
 
     @Query(
         """

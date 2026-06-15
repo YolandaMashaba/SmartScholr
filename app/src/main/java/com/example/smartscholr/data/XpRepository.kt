@@ -1,111 +1,77 @@
 package com.example.smartscholr.data
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import androidx.room.withTransaction
 import java.util.Calendar
+import java.util.TimeZone
 
-class XpRepository(private val db: AppDatabase) {
+class XpRepository(
+    private val xpDao: XpDao,
+    private val db: AppDatabase
+) {
+    /**
+     * Awards [amount] XP to the user and updates their daily streak.
+     * Streak logic:
+     *  - If last log was "today" (same calendar day) -> streak unchanged, just add XP
+     *  - If last log was "yesterday" -> streak += 1
+     *  - Otherwise (gap of 2+ days, or first-ever log) -> streak resets to 1
+     *
+     * Returns the updated XpEntity so the UI can immediately reflect new totals.
+     */
+    suspend fun addXp(userId: Long, amount: Int): XpEntity {
+        require(amount > 0) { "XP amount must be positive" }
 
-    private val dao get() = db.xpDao()
+        return db.withTransaction {
+            val current = xpDao.getOrNull(userId)
+            val now = System.currentTimeMillis()
 
-    // XP values
-    companion object {
-        const val XP_LOG_TRANSACTION = 10
-        const val XP_LOG_INCOME     = 15  // on top of XP_LOG_TRANSACTION
-        const val XP_UNDER_BUDGET   = 25
-        const val XP_STREAK_BONUS   = 25
+            val updated = if (current == null) {
+                // First-ever XP for this user
+                XpEntity(
+                    userId = userId,
+                    totalXp = amount,
+                    streakDays = 1,
+                    lastLogDateMillis = now
+                )
+            } else {
+                val newStreak = when (daysBetween(current.lastLogDateMillis, now)) {
+                    0 -> current.streakDays              // already logged today
+                    1 -> current.streakDays + 1          // consecutive day
+                    else -> 1                            // gap -> reset (or 0L = never logged)
+                }
 
-        val LEVELS = listOf(
-            Triple("Penny Saver",   0,    "🪙"),
-            Triple("Budget Scout",  100,  "🛡️"),
-            Triple("Coin Keeper",   250,  "💵"),
-            Triple("Money Mover",   500,  "📈"),
-            Triple("Fin Wizard",    1000, "⚡"),
-            Triple("Scholar Pro",   2000, "🏆")
-        )
-
-        fun levelFor(xp: Int): Triple<String, Int, String> =
-            LEVELS.lastOrNull { xp >= it.second } ?: LEVELS.first()
-
-        fun nextLevel(xp: Int): Triple<String, Int, String>? {
-            val idx = LEVELS.indexOfLast { xp >= it.second }
-            return if (idx + 1 < LEVELS.size) LEVELS[idx + 1] else null
-        }
-
-        fun xpToNext(xp: Int): Int {
-            val next = nextLevel(xp) ?: return 0
-            return (next.second - xp).coerceAtLeast(0)
-        }
-    }
-
-    suspend fun getOrCreate(userId: Long): XpEntity = withContext(Dispatchers.IO) {
-        dao.getOrNull(userId) ?: XpEntity(userId = userId).also { dao.upsert(it) }
-    }
-
-    /** Call after any transaction is saved. Pass isExpense=false for income. */
-    suspend fun awardTransaction(userId: Long, isExpense: Boolean): AwardResult =
-        withContext(Dispatchers.IO) {
-            val current = getOrCreate(userId)
-            var gained = XP_LOG_TRANSACTION
-            if (!isExpense) gained += XP_LOG_INCOME
-
-            // streak logic
-            val today = startOfDayMillis()
-            val yesterday = today - 86_400_000L
-            val newStreak = when {
-                current.lastLogDateMillis == today -> current.streakDays // already logged today
-                current.lastLogDateMillis == yesterday -> current.streakDays + 1 // continued streak
-                else -> 1 // broken or new streak
+                current.copy(
+                    totalXp = current.totalXp + amount,
+                    streakDays = if (current.lastLogDateMillis == 0L) 1 else newStreak,
+                    lastLogDateMillis = now
+                )
             }
-            val streakBonus = if (current.lastLogDateMillis != today) XP_STREAK_BONUS else 0
-            gained += streakBonus
 
-            val updated = current.copy(
-                totalXp = current.totalXp + gained,
-                streakDays = newStreak,
-                lastLogDateMillis = today
-            )
-            dao.upsert(updated)
-
-            val oldLevel = levelFor(current.totalXp).first
-            val newLevel = levelFor(updated.totalXp).first
-            AwardResult(
-                xpGained = gained,
-                totalXp = updated.totalXp,
-                streakDays = newStreak,
-                leveledUp = newLevel != oldLevel,
-                newLevelName = newLevel
-            )
+            xpDao.upsert(updated)
+            updated
         }
-
-    /** Call at end of month to check if user stayed under budget. */
-    suspend fun awardUnderBudget(userId: Long): AwardResult = withContext(Dispatchers.IO) {
-        val current = getOrCreate(userId)
-        val updated = current.copy(totalXp = current.totalXp + XP_UNDER_BUDGET)
-        dao.upsert(updated)
-        AwardResult(
-            xpGained = XP_UNDER_BUDGET,
-            totalXp = updated.totalXp,
-            streakDays = current.streakDays,
-            leveledUp = levelFor(updated.totalXp).first != levelFor(current.totalXp).first,
-            newLevelName = levelFor(updated.totalXp).first
-        )
     }
 
-    private fun startOfDayMillis(): Long {
-        val c = Calendar.getInstance()
-        c.set(Calendar.HOUR_OF_DAY, 0)
-        c.set(Calendar.MINUTE, 0)
-        c.set(Calendar.SECOND, 0)
-        c.set(Calendar.MILLISECOND, 0)
-        return c.timeInMillis
+    /**
+     * Returns the number of calendar days between two timestamps,
+     * using local timezone, ignoring time-of-day.
+     * 0 = same day, 1 = consecutive day, 2+ = streak broken.
+     */
+    private fun daysBetween(fromMillis: Long, toMillis: Long): Int {
+        if (fromMillis == 0L) return Int.MAX_VALUE // "never logged" -> always treat as broken
+
+        val fromDay = startOfDay(fromMillis)
+        val toDay = startOfDay(toMillis)
+        val diffMillis = toDay - fromDay
+        return (diffMillis / (24 * 60 * 60 * 1000L)).toInt()
     }
 
-    data class AwardResult(
-        val xpGained: Int,
-        val totalXp: Int,
-        val streakDays: Int,
-        val leveledUp: Boolean,
-        val newLevelName: String
-    )
+    private fun startOfDay(millis: Long): Long {
+        val cal = Calendar.getInstance(TimeZone.getDefault())
+        cal.timeInMillis = millis
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        return cal.timeInMillis
+    }
 }
