@@ -58,3 +58,20 @@ We use a **Develop-first strategy**:
 1. **Main branch** — reserved for final, submission-ready code. Do not push here directly.
 2. **Develop branch** — the default branch for ongoing integration.
 3. **Feature branches** — for every task, branch off `develop`:
+
+## Features (current build)
+As part of the final submission, you can view the full walkthrough of the app's features, navigation, and functionality here:
+https://youtu.be/3tqNVuDuQ20?si=bRnicAk-L8uDmBOG
+
+## SmartScholr images:
+<img width="718" height="1600" alt="image" src="https://github.com/user-attachments/assets/35d9db4d-091c-43e9-bbdf-b2a833ce3962" />
+<img width="718" height="1600" alt="image" src="https://github.com/user-attachments/assets/e553bb9e-ba98-4f4d-9e36-3b09ee767dc1" />
+<img width="718" height="1600" alt="image" src="https://github.com/user-attachments/assets/a3c3ed6a-f63a-40ed-8834-81f0fb50b9f2" />
+<img width="718" height="1600" alt="image" src="https://github.com/user-attachments/assets/dcaec2ca-53ef-4c8d-aa0f-c8afdf0af0a9" />
+<img width="718" height="1600" alt="image" src="https://github.com/user-attachments/assets/8987c051-8d10-4cff-b61c-bff1a4eaca38" />
+<img width="718" height="1600" alt="image" src="https://github.com/user-attachments/assets/85406bc9-37a9-4e2a-be59-c49547c2a246" />
+
+
+
+
+
