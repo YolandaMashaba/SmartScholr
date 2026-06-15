@@ -78,4 +78,5 @@ class TransactionAdapter(
         val amount: TextView = v.findViewById(R.id.textAmount)
         val receipt: ImageView = v.findViewById(R.id.imageReceipt)
     }
+
 }
