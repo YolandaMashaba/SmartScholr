@@ -8,7 +8,6 @@ import com.example.smartscholr.data.AuthRepository
 import com.example.smartscholr.data.LedgerRepository
 import com.example.smartscholr.data.XpRepository
 import com.example.smartscholr.session.SessionStore
-import kotlin.jvm.java
 
 class SmartScholrApplication : Application() {
 
@@ -40,3 +39,4 @@ class SmartScholrApplication : Application() {
     }
 }
 
+fun Application.scholrApp(): SmartScholrApplication = this as SmartScholrApplication

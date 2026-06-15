@@ -3,10 +3,6 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
-}
-
 android {
     namespace = "com.example.smartscholr"
     compileSdk {
@@ -42,7 +38,6 @@ android {
 
 dependencies {
     implementation(libs.androidx.activity.ktx)
-    implementation(libs.androidx.adapters)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
@@ -57,10 +52,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
-    implementation("androidx.navigation:navigation-fragment-ktx:2.9.8")
-    implementation("androidx.navigation:navigation-ui-ktx:2.9.8")
-    implementation("io.coil-kt:coil:2.7.0")
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
+    implementation("io.coil-kt:coil:2.4.0")
+    implementation("nl.dionsegijn:konfetti-xml:2.0.4")
 }
-
-
