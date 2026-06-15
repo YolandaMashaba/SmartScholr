@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Matches splash mock: gradient, faint circles, logo tile with SMARTSCHOLR inside, two-tone title, orange CTA -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -44,7 +43,7 @@
             android:id="@+id/textWelcomeTo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="72dp"
+            android:layout_marginTop="52dp"
             android:fontFamily="sans-serif-light"
             android:text="@string/splash_welcome_to"
             android:textColor="@color/white"
@@ -55,15 +54,14 @@
 
         <FrameLayout
             android:id="@+id/logoTile"
-            android:layout_width="132dp"
-            android:layout_height="132dp"
-            android:layout_marginTop="16dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="12dp"
             android:background="@drawable/bg_logo_tile"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textWelcomeTo">
 
-            <!-- Full logo from res/drawable (synced from assets/images/logo.png) -->
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -77,7 +75,7 @@
             android:id="@+id/rowSplashTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="12dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
@@ -110,7 +108,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="36dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="6dp"
             android:layout_marginEnd="36dp"
             android:gravity="center"
             android:lineSpacingMultiplier="1.2"
@@ -120,6 +118,57 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/rowSplashTitle" />
+
+        <!-- Student image card with rounded corners and overlay -->
+        <FrameLayout
+            android:id="@+id/studentImageCard"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_image_rounded"
+            android:clipToOutline="true"
+            android:elevation="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/btnGetStarted"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textSplashTagline">
+
+            <!-- Student photo -->
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgStudents"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="matrix"
+                android:alpha="0.90"
+                android:contentDescription="Students" />
+
+            <!-- Teal gradient overlay to blend with theme -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0.30"
+                android:background="@drawable/bg_splash_gradient"
+                android:importantForAccessibility="no" />
+
+            <!-- Caption at bottom of image -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:layout_margin="16dp"
+                android:text="Budget smarter. Live better."
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:shadowColor="#99000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="4" />
+
+        </FrameLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGetStarted"

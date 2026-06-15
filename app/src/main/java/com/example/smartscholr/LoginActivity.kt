@@ -12,11 +12,113 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 import java.util.Locale
+import android.graphics.Matrix
+import android.os.Handler
+import android.widget.ImageView
+import com.example.smartscholr.util.AssetImageLoader
 
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        val imgView = findViewById<ImageView>(R.id.imgLogin)
+
+
+        val images = listOf(
+            "images/Login_Image1.jpg",
+            "images/Login_Image2.jpg",
+            "images/Login_Image3.jpg"
+        )
+
+
+        var currentIndex = 0
+
+
+        fun loadImage(index: Int) {
+
+            val bmp = AssetImageLoader.loadBitmap(
+                this,
+                images[index]
+            )
+
+
+            if (bmp != null) {
+
+                imgView.scaleType = ImageView.ScaleType.MATRIX
+
+
+                val scale =
+                    imgView.height.toFloat() / bmp.height.toFloat()
+
+
+                val matrix = Matrix()
+
+                matrix.setScale(scale, scale)
+
+
+                imgView.imageMatrix = matrix
+
+                imgView.setImageBitmap(bmp)
+            }
+        }
+
+
+
+        val handler = Handler(mainLooper)
+
+
+
+        imgView.post {
+
+
+            // first image
+            loadImage(currentIndex)
+
+
+
+            val runnable = object : Runnable {
+
+                override fun run() {
+
+
+                    currentIndex =
+                        (currentIndex + 1) % images.size
+
+
+
+                    imgView.animate()
+                        .alpha(0f)
+                        .setDuration(500)
+                        .withEndAction {
+
+
+                            loadImage(currentIndex)
+
+
+                            imgView.animate()
+                                .alpha(1f)
+                                .setDuration(500)
+                                .start()
+
+                        }
+                        .start()
+
+
+
+                    handler.postDelayed(
+                        this,
+                        7000
+                    )
+                }
+            }
+
+
+
+            handler.postDelayed(
+                runnable,
+                7000
+            )
+        }
         val app = application as SmartScholrApplication
         val email = findViewById<TextInputEditText>(R.id.inputLoginEmail)
         val pass = findViewById<TextInputEditText>(R.id.inputLoginPassword)
