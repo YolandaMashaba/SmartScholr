@@ -8,5 +8,9 @@ data class XpEntity(
     @PrimaryKey val userId: Long,
     val totalXp: Int = 0,
     val streakDays: Int = 0,
-    val lastLogDateMillis: Long = 0L
+    val lastLogDateMillis: Long = 0L,
+    val lastLoginDateMillis: Long = 0L,
+    val loginStreakDays: Int = 0,
+    val lastAppOpenDateMillis: Long = 0L,
+    val appOpenStreakDays: Int = 0
 )
