@@ -1,86 +1,60 @@
-# SmartScholr
-Student Budget & Expense Tracker
+# Student Budget & Expense Tracker — SmartScholr
 
-Welcome to the Smart Scholar repository. This project is a collaborative Android application designed to help students manage their finances, track expenses, and visualize their spending habits.
+Welcome to the SmartScholr repository. This project is a collaborative Android application designed to help **university students** manage their personal finances — logging income and expenses, organizing spending by category, visualizing budgets, and staying motivated through a built-in gamification system (XP, levels, and daily streaks).
 
-Video Presentation & Demo
+## What the App Does
 
-As part of the final submission, you can view the full walkthrough of the app's features, navigation, and functionality here:
-https://youtube.com/shorts/kGScXqtr3_0?si=OH_LJ3qeddPwCWin
+SmartScholr lets students:
+- Log income and expense transactions with descriptions, categories, dates, and optional receipt photos
+- View a home dashboard summarizing Total Income, Total Spent, and Balance for the current period
+- Browse recent transactions and a "Spending by Category" breakdown
+- Set monthly budget limits per category
+- Earn **XP and level up** by logging transactions, logging income, staying under budget, and maintaining daily logging streaks
+- Securely register and log in with salted/hashed password storage (no plaintext credentials)
 
-Final Deliverables (APK)
+## Who It's For
 
-For testing purposes, the compiled application file is provided:
+Students who want a lightweight, private, on-device budgeting tool without needing an internet connection or third-party financial account access — all data stays local in an encrypted/secured Room database on the device.
 
-1. File Name: SmartScholar_v1_Final.apk
+## Design Decisions
 
-2. Purpose: This APK is the standalone installer for the application. It includes all compiled Kotlin code, XML layouts, and database configurations, allowing the app to be installed and tested on any Android Emulator or physical device without needing the source code.
+- **MVVM architecture** separates UI (Activities/XML layouts) from business logic (Repositories) and data access (Room DAOs), making each module independently testable.
+- **Room as the single source of truth** — `AppDatabase` defines four entities (`User`, `CategoryEntity`, `LedgerEntry`, `XpEntity`) with foreign key relationships enforcing referential integrity (e.g., deleting a user cascades to their categories and XP record; deleting a category sets related transactions to "uncategorized" rather than deleting transaction history).
+- **Coroutines + suspend functions** across all DAOs ensure database operations never block the main thread.
+- **Salted, hashed password storage** (`PasswordHasher`) — no plaintext credentials are ever persisted.
+- **Gamification as a separate concern** — `XpRepository.addXp()` handles XP awarding and streak calculation atomically (wrapped in a database transaction) using calendar-day comparisons, decoupled from the transaction-logging flow that triggers it.
+- **Schema migrations over destructive resets** — the project avoids `fallbackToDestructiveMigration()` to preserve user data across app updates; `MIGRATION_1_2`/`MIGRATION_2_3` and an upcoming `MIGRATION_3_4` (introducing integer-based currency storage and additional foreign keys) are implemented as explicit, tested `Migration` objects.
 
-3. How to Install: Download the APK from the submission portal and drag-and-drop it into an Android Studio Emulator.
+## Tech Stack
 
-Tech Stack
-Language: Kotlin
+- **Language:** Kotlin
+- **Architecture:** MVVM (Model-View-ViewModel)
+- **Database:** Room (SQLite), with Kotlin coroutines for async access
+- **CI/CD:** GitHub Actions (automated builds and tests on every push/PR)
+- **UI:** XML layouts / Empty Views Activity
+- **Charts:** MPAndroidChart (Spending by Category visualizations)
+- **Image loading:** Coil (receipt photo display)
 
-- Architecture: MVVM (Model-View-ViewModel)
+## Custom Features
 
-- Database: Room SQLite
+This project includes two custom features beyond the core budgeting functionality:
 
-- CI/CD: GitHub Actions (Automated Builds & Testing)
+1. **XP & Leveling System** — Users earn experience points for financial habits: +10 XP for logging a transaction, +15 XP for logging income, +25 XP for staying under a category's monthly budget, and +25 XP for maintaining a daily logging streak. XP accumulates toward levels (e.g., "Penny Saver" at Level 1), displayed via a circular progress indicator and level-up screen.
 
-- UI: XML / Empty Views Activity
+2. **Daily Streak Tracking** — The app tracks consecutive days of activity logging using calendar-day comparison (not a rolling 24-hour window), displayed as a streak counter and day-by-day visual indicator, encouraging consistent budgeting habits.
 
-Project Structure & Assignments
-- com.example.smartscholr.auth (Nkoka): Login, Registration, & User Profiles
-- com.example.smartscholr.expenses (Nduh): Expense Entry, Categories, & Budgeting
-- com.example.smartscholr.reports (Mhlengi): Charts, Data Filtering, & Photo/Receipts
-- com.example.smartscholr.data (Sifiso): Shared Room Database & Entities
+## Project Structure & Module Ownership
 
-Git Workflow (Important!)
+- `com.example.smartscholr.auth` (Nkoka) — Login, registration, and user profile management
+- `com.example.smartscholr.expenses` (Nduh) — Expense entry, category management, and budgeting
+- `com.example.smartscholr.reports` (Mhlengi) — Charts, data filtering, and receipt photo handling
+- `com.example.smartscholr.data` (Sifiso) — Shared Room database, entities, DAOs, and repositories
+- `com.example.smartscholr.security` — Password hashing and credential security
 
-We are using a Develop-first strategy. Please follow these rules to keep the project stable:
+## Git Workflow
 
-1. Main Branch: Reserved for final, submission-ready code. Do not push here.
+We use a **Develop-first strategy**:
 
-2. Develop Branch: The default branch for integration.
-
-3. Feature Branches: For every task, create a new branch from develop.
-
-    - git checkout develop
-
-    - git pull origin develop
-
-    - git checkout -b feature-name
-
-Submitting Work
-- When your task is done, push your branch to GitHub.
-
-- Open a Pull Request (PR) from your branch into develop.
-
-- GitHub Actions will automatically run a build check. If you see a Red X, you must fix the errors before we can merge your code.
-
-Getting Started
-1. Open Android Studio.
-
-2. Select File > New > Project from Version Control.
-
-3. Paste this Repo URL: https://github.com/YolandaMashaba/SmartScholr.git
-
-4. Wait for Gradle Sync to finish.
-
-5. Switch your view to the Android tab to see the package structure.
-
-Continuous Integration
-
-This project uses GitHub Actions. Every time you push code or open a PR, the system will:
-
-1. Set up the Android environment.
-
-2. Check for syntax errors.
-
-3. Run Unit Tests.
-
-4. Build a debug APK.
-
-5. Status: Check the Actions tab on GitHub to see the build history.
-
-Note: If you add new libraries, please inform the Sifiso and Nkoka so we can update the baseline dependencies for everyone.
+1. **Main branch** — reserved for final, submission-ready code. Do not push here directly.
+2. **Develop branch** — the default branch for ongoing integration.
+3. **Feature branches** — for every task, branch off `develop`:
