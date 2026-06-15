@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="80dp"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="4dp">
+
+    <FrameLayout
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:background="@drawable/bg_circle_faint"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/textBadgeIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="👑"
+            android:textSize="24sp" />
+
+        <ImageView
+            android:id="@+id/imgBadgeLocked"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_gravity="bottom|end"
+            android:src="@android:drawable/ic_lock_lock"
+            android:visibility="gone"
+            app:tint="@color/text_secondary" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/textBadgeName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:text="Budget King"
+        android:textColor="@color/section_label"
+        android:textSize="10sp"
+        android:textStyle="bold" />
+
+</LinearLayout>
