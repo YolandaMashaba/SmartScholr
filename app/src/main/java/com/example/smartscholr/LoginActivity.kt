@@ -40,6 +40,10 @@ class LoginActivity : AppCompatActivity() {
                     Result.failure(t)
                 }
                 if (r.isSuccess) {
+                    val userId = app.authRepository.currentUser()?.id
+                    if (userId != null) {
+                        app.xpRepository.awardLogin(userId)
+                    }
                     startActivity(Intent(this@LoginActivity, HomeActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     })

@@ -12,6 +12,8 @@ class XpRepository(private val db: AppDatabase) {
     companion object {
         const val XP_LOG_TRANSACTION = 10
         const val XP_LOG_INCOME     = 15  // on top of XP_LOG_TRANSACTION
+        const val XP_LOGIN          = 5
+        const val XP_APP_OPEN       = 2
         const val XP_UNDER_BUDGET   = 25
         const val XP_STREAK_BONUS   = 25
 
@@ -73,6 +75,8 @@ class XpRepository(private val db: AppDatabase) {
                 xpGained = gained,
                 totalXp = updated.totalXp,
                 streakDays = newStreak,
+                loginStreakDays = current.loginStreakDays,
+                appOpenStreakDays = current.appOpenStreakDays,
                 leveledUp = newLevel != oldLevel,
                 newLevelName = newLevel
             )
@@ -87,8 +91,98 @@ class XpRepository(private val db: AppDatabase) {
             xpGained = XP_UNDER_BUDGET,
             totalXp = updated.totalXp,
             streakDays = current.streakDays,
+            loginStreakDays = current.loginStreakDays,
+            appOpenStreakDays = current.appOpenStreakDays,
             leveledUp = levelFor(updated.totalXp).first != levelFor(current.totalXp).first,
             newLevelName = levelFor(updated.totalXp).first
+        )
+    }
+
+    suspend fun awardAppOpen(userId: Long): AwardResult = withContext(Dispatchers.IO) {
+        val current = getOrCreate(userId)
+        val today = startOfDayMillis()
+
+        if (current.lastAppOpenDateMillis == today) {
+            return@withContext AwardResult(
+                xpGained = 0,
+                totalXp = current.totalXp,
+                streakDays = current.streakDays,
+                loginStreakDays = current.loginStreakDays,
+                appOpenStreakDays = current.appOpenStreakDays,
+                leveledUp = false,
+                newLevelName = levelFor(current.totalXp).first
+            )
+        }
+
+        val yesterday = today - 86_400_000L
+        val newAppOpenStreak = if (current.lastAppOpenDateMillis == yesterday) {
+            current.appOpenStreakDays + 1
+        } else {
+            1
+        }
+
+        val gained = XP_APP_OPEN
+        val updated = current.copy(
+            totalXp = current.totalXp + gained,
+            lastAppOpenDateMillis = today,
+            appOpenStreakDays = newAppOpenStreak
+        )
+        dao.upsert(updated)
+
+        AwardResult(
+            xpGained = gained,
+            totalXp = updated.totalXp,
+            streakDays = updated.streakDays,
+            loginStreakDays = updated.loginStreakDays,
+            appOpenStreakDays = newAppOpenStreak,
+            leveledUp = levelFor(updated.totalXp).first != levelFor(current.totalXp).first,
+            newLevelName = levelFor(updated.totalXp).first
+        )
+    }
+
+    suspend fun awardLogin(userId: Long): AwardResult = withContext(Dispatchers.IO) {
+        val current = getOrCreate(userId)
+        val today = startOfDayMillis()
+        
+        if (current.lastLoginDateMillis == today) {
+            // Already awarded today
+            return@withContext AwardResult(
+                xpGained = 0,
+                totalXp = current.totalXp,
+                streakDays = current.streakDays,
+                loginStreakDays = current.loginStreakDays,
+                appOpenStreakDays = current.appOpenStreakDays,
+                leveledUp = false,
+                newLevelName = levelFor(current.totalXp).first
+            )
+        }
+        
+        val yesterday = today - 86_400_000L
+        val newLoginStreak = if (current.lastLoginDateMillis == yesterday) {
+            current.loginStreakDays + 1
+        } else {
+            1
+        }
+        
+        val gained = XP_LOGIN
+        val updated = current.copy(
+            totalXp = current.totalXp + gained,
+            lastLoginDateMillis = today,
+            loginStreakDays = newLoginStreak
+        )
+        dao.upsert(updated)
+        
+        val oldLevel = levelFor(current.totalXp).first
+        val newLevel = levelFor(updated.totalXp).first
+        
+        AwardResult(
+            xpGained = gained,
+            totalXp = updated.totalXp,
+            streakDays = current.streakDays,
+            loginStreakDays = newLoginStreak,
+            appOpenStreakDays = current.appOpenStreakDays,
+            leveledUp = newLevel != oldLevel,
+            newLevelName = newLevel
         )
     }
 
@@ -151,7 +245,16 @@ class XpRepository(private val db: AppDatabase) {
             isEarned = xp.streakDays >= 3
         ))
         
-        // 4. Savings Master - Level 3+
+        // 4. Daily Devotee - 3 day login streak
+        badges.add(Badge(
+            id = "daily_devotee",
+            name = "Daily Devotee",
+            description = "Log in 3 days in a row",
+            icon = "📱",
+            isEarned = xp.loginStreakDays >= 3
+        ))
+        
+        // 5. Savings Master - Level 3+
         val level = levelFor(xp.totalXp)
         val levelIdx = LEVELS.indexOfFirst { it.first == level.first }
         badges.add(Badge(
@@ -169,6 +272,8 @@ class XpRepository(private val db: AppDatabase) {
         val xpGained: Int,
         val totalXp: Int,
         val streakDays: Int,
+        val loginStreakDays: Int = 0,
+        val appOpenStreakDays: Int = 0,
         val leveledUp: Boolean,
         val newLevelName: String
     )
