@@ -66,9 +66,9 @@ https://youtu.be/3tqNVuDuQ20?si=bRnicAk-L8uDmBOG
 ## SmartScholr images:
 <img width="718" height="1600" alt="image" src="https://github.com/user-attachments/assets/35d9db4d-091c-43e9-bbdf-b2a833ce3962" />
 <img width="718" height="1600" alt="image" src="https://github.com/user-attachments/assets/e553bb9e-ba98-4f4d-9e36-3b09ee767dc1" />
+<img width="718" height="1600" alt="image" src="https://github.com/user-attachments/assets/8987c051-8d10-4cff-b61c-bff1a4eaca38" />
 <img width="718" height="1600" alt="image" src="https://github.com/user-attachments/assets/a3c3ed6a-f63a-40ed-8834-81f0fb50b9f2" />
 <img width="718" height="1600" alt="image" src="https://github.com/user-attachments/assets/dcaec2ca-53ef-4c8d-aa0f-c8afdf0af0a9" />
-<img width="718" height="1600" alt="image" src="https://github.com/user-attachments/assets/8987c051-8d10-4cff-b61c-bff1a4eaca38" />
 <img width="718" height="1600" alt="image" src="https://github.com/user-attachments/assets/85406bc9-37a9-4e2a-be59-c49547c2a246" />
 
 
