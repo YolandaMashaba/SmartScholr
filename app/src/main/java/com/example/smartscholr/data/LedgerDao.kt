@@ -69,6 +69,9 @@ interface LedgerDao {
         """
     )
     fun countInRange(userId: Long, from: Long, to: Long): Int
+
+    @Query("SELECT COUNT(*) FROM ledger_entries WHERE userId = :userId")
+    fun countAllForUser(userId: Long): Int
 }
 
 data class CategoryExpenseSum(

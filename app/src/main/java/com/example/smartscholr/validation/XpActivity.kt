@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smartscholr.data.XpRepository
+import com.example.smartscholr.ui.BadgeAdapter
 import com.example.smartscholr.ui.LevelAdapter
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import kotlinx.coroutines.launch
@@ -57,8 +58,18 @@ class XpActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.textStreakBadge).text = "${xp.streakDays} day streak"
             findViewById<TextView>(R.id.textStreakCount).text = "${xp.streakDays} days"
 
+            // Display App Open Streak
+            findViewById<TextView>(R.id.textAppOpenStreak).text = "${xp.appOpenStreakDays} days"
+            findViewById<TextView>(R.id.textAppOpenStreakBadge).text = "${xp.appOpenStreakDays} day open streak"
+
             // Streak day circles
             buildStreakDots(xp.streakDays)
+
+            // Badges
+            val badges = app.xpRepository.getBadges(userId)
+            val rvBadges = findViewById<RecyclerView>(R.id.rvBadges)
+            rvBadges.layoutManager = LinearLayoutManager(this@XpActivity, LinearLayoutManager.HORIZONTAL, false)
+            rvBadges.adapter = BadgeAdapter(badges)
 
             // Levels list
             val levelRows = XpRepository.LEVELS.map { (name, xpReq, icon) ->

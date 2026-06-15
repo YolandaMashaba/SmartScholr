@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.smartscholr.data.CategoryEntity
 import com.example.smartscholr.data.LedgerEntry
 import com.example.smartscholr.data.LedgerRepository
+import com.example.smartscholr.data.XpRepository
 import com.example.smartscholr.ui.CategorySpendAdapter
 import com.example.smartscholr.ui.TransactionAdapter
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -37,6 +38,11 @@ import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.Position
+import nl.dionsegijn.konfetti.core.emitter.Emitter
+import nl.dionsegijn.konfetti.core.models.Size
+import nl.dionsegijn.konfetti.xml.KonfettiView
 import java.io.File
 import java.text.NumberFormat
 import java.util.Calendar
@@ -75,6 +81,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var editAmount: TextInputEditText
     private lateinit var spinnerCategory: Spinner
     private lateinit var headerLogout: TextView
+    private lateinit var konfettiView: KonfettiView
 
     private var currentPhotoPath: String? = null
     private var capturedPhotoUri: Uri? = null
@@ -146,6 +153,7 @@ class HomeActivity : AppCompatActivity() {
         editAmount = findViewById(R.id.editAmount)
         spinnerCategory = findViewById(R.id.spinnerCategory)
         headerLogout = findViewById(R.id.headerLogout)
+        konfettiView = findViewById(R.id.konfettiView)
 
         rvRecent.layoutManager = LinearLayoutManager(this)
         rvRecent.adapter = recentAdapter
@@ -157,8 +165,12 @@ class HomeActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnStartTime).setOnClickListener { openTimePicker(true) }
         findViewById<Button>(R.id.btnEndTime).setOnClickListener { openTimePicker(false) }
         findViewById<Button>(R.id.btnAddCategory).setOnClickListener { showAddCategoryDialog() }
-        findViewById<Button>(R.id.btnIncome).setOnClickListener { saveEntry(isExpense = false) }
-        findViewById<Button>(R.id.btnExpense).setOnClickListener { saveEntry(isExpense = true) }
+        findViewById<Button>(R.id.btnIncome).setOnClickListener {
+            saveEntry(isExpense = false)
+        }
+        findViewById<Button>(R.id.btnExpense).setOnClickListener {
+            saveEntry(isExpense = true)
+        }
         findViewById<Button>(R.id.btnDateFilter).setOnClickListener { showRangeDatePicker() }
         findViewById<Button>(R.id.btnCamera).setOnClickListener { launchCamera() }
         findViewById<Button>(R.id.btnGallery).setOnClickListener { pickGallery.launch("image/*") }
@@ -214,6 +226,24 @@ class HomeActivity : AppCompatActivity() {
                     return@launch
                 }
                 userId = id
+                val openAward = app.xpRepository.awardAppOpen(userId)
+                if (openAward.xpGained > 0) {
+                    val msg = buildString {
+                        append("Welcome! +${openAward.xpGained} XP")
+                        if (openAward.appOpenStreakDays > 1) append(" 🔥 ${openAward.appOpenStreakDays} day app streak!")
+                    }
+                    Toast.makeText(this@HomeActivity, msg, Toast.LENGTH_SHORT).show()
+                }
+
+                val award = app.xpRepository.awardLogin(userId) // Login streak check
+                if (award.xpGained > 0) {
+                    val msg = buildString {
+                        append("Welcome back! +${award.xpGained} XP")
+                        if (award.loginStreakDays > 1) append(" 🔥 ${award.loginStreakDays} day login streak!")
+                        if (award.leveledUp) append(" 🎉 Level up: ${award.newLevelName}!")
+                    }
+                    Toast.makeText(this@HomeActivity, msg, Toast.LENGTH_SHORT).show()
+                }
                 app.ledgerRepository.ensureDefaultCategories(userId)
                 buildMonthChips()
                 loadCategoriesToSpinner { refreshDashboard() }
@@ -455,7 +485,28 @@ class HomeActivity : AppCompatActivity() {
             Toast.makeText(this@HomeActivity, msg, Toast.LENGTH_SHORT).show()
             // ───────────────────────────────────────────────
 
+            triggerConfetti()
             refreshDashboard()
+        }
+    }
+
+    private fun triggerConfetti() {
+        konfettiView.post {
+            val colors = listOf(0xFFFCE18A.toInt(), 0xFFFF726D.toInt(), 0xFFF4306D.toInt(), 0xFFB48DEF.toInt())
+
+            val party = Party(
+                speed = 10f,
+                maxSpeed = 30f,
+                damping = 0.9f,
+                angle = 90,
+                spread = 360,
+                colors = colors,
+                size = listOf(Size.SMALL, Size.MEDIUM, Size.LARGE),
+                position = Position.Relative(0.5, -0.2),
+                emitter = Emitter(duration = 2000L).perSecond(50)
+            )
+
+            konfettiView.start(party)
         }
     }
 
@@ -495,6 +546,13 @@ class HomeActivity : AppCompatActivity() {
         textRecentBadge.text = badgeText
         recentAdapter.submit(snap.recent)
         categoryAdapter.submit(snap.categoryExpenses)
+
+        // Show level in header
+        lifecycleScope.launch {
+            val xp = app.xpRepository.getOrCreate(userId)
+            val level = XpRepository.levelFor(xp.totalXp)
+            findViewById<TextView>(R.id.headerLevelUp).text = "${level.third} ${level.first} • Level Up"
+        }
     }
 
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()

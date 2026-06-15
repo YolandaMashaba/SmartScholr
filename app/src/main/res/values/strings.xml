@@ -73,4 +73,7 @@
     <string name="error_time_order">End time must be on or after start time</string>
     <string name="entry_saved">Saved</string>
     <string name="unnamed">(No description)</string>
+    <string name="month_selection">Month selection</string>
+    <string name="financial_summary">Financial summary</string>
+    <string name="confetti_celebration">Confetti celebration</string>
 </resources>
