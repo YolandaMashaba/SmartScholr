@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="reportingChart" type="id">reportingChart</item>
+    <item name="chartWebView" type="id">chartWebView</item>
+    <item name="lineChart" type="id">lineChart</item>
+</resources>

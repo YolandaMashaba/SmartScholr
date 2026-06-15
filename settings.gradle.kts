@@ -24,3 +24,11 @@ dependencyResolutionManagement {
 
 rootProject.name = "SmartScholr"
 include(":app")
+
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://jitpack.io")
+    }
+}
